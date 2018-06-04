@@ -1,8 +1,9 @@
 package com.sugarmq.controller;
 
-import com.sugarmq.request.ConsumerRequest;
+import com.sugarmq.request.NameRequest;
 import com.sugarmq.response.ConsumerResponse;
 import com.sugarmq.response.DataResponse;
+import com.sugarmq.response.MessageResponse;
 import com.sugarmq.service.PageDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +19,15 @@ public class DataController {
     public DataResponse dataResponse() {
         return pageDataService.dataResponse();
     }
+
     @PostMapping("consumerData")
-    public ConsumerResponse consumerResponse(@RequestBody ConsumerRequest consumerRequest){
+    public ConsumerResponse consumerResponse(@RequestBody NameRequest consumerRequest) {
         return pageDataService.consumerResponse(consumerRequest.getQueueName());
     }
+
+    @PostMapping("messageData")
+    public MessageResponse messageResponse(@RequestBody NameRequest messageRequest) {
+        return pageDataService.messageResponse(messageRequest.getQueueName());
+    }
+
 }

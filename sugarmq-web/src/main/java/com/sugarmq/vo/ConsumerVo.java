@@ -1,40 +1,15 @@
 package com.sugarmq.vo;
 
+import lombok.Data;
+
+@Data
 public class ConsumerVo {
+    //队列名称
     private String queueName;
+    //消费者id
     private String consumerID;
+    //消费者创建日期
     private String date;
+    //前端结束标志
     private int waitingMessageNumber;
-
-    public String getQueueName() {
-        return queueName;
-    }
-
-    public void setQueueName(String queueName) {
-        this.queueName = queueName;
-    }
-
-    public String getConsumerID() {
-        return consumerID;
-    }
-
-    public void setConsumerID(String consumerID) {
-        this.consumerID = consumerID;
-    }
-
-    public int getWaitingMessageNumber() {
-        return waitingMessageNumber;
-    }
-
-    public void setWaitingMessageNumber(int waitingMessageNumber) {
-        this.waitingMessageNumber = waitingMessageNumber;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
 }

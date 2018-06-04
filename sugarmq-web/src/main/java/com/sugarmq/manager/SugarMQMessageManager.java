@@ -1,5 +1,7 @@
 package com.sugarmq.manager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jms.DeliveryMode;
@@ -9,6 +11,7 @@ import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Topic;
 
+import com.sugarmq.vo.MessageVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +41,8 @@ public class SugarMQMessageManager {
 	// 消息队列
 	private ConcurrentHashMap<String, SugarMQMessageContainer> messageContainerMap = 
 			new ConcurrentHashMap<String, SugarMQMessageContainer>();
-	
+	private ConcurrentHashMap<String,List<Message>> allMessageMap =
+			new ConcurrentHashMap<>();
 
 	@Autowired
 	private SugarMQConsumerManager sugarMQConsumerManager;
@@ -48,11 +52,6 @@ public class SugarMQMessageManager {
 	public ConcurrentHashMap<String, SugarMQMessageContainer> getMessageContainerMap() {
 		return messageContainerMap;
 	}
-
-	public void setMessageContainerMap(ConcurrentHashMap<String, SugarMQMessageContainer> messageContainerMap) {
-		this.messageContainerMap = messageContainerMap;
-	}
-
 	/**
 	 * 将一个消息放入队列中
 	 * @param message
@@ -72,6 +71,7 @@ public class SugarMQMessageManager {
 			String name = ((javax.jms.Queue) destination).getQueueName();
 			
 			SugarMQMessageContainer queue = getSugarMQMessageContainer(name);
+			List<Message> messageVoList = getMessageList(name);
 			
 			if (messageContainerMap.size() >= MAX_QUEUE_NUM) {
 				logger.warn("MOM中队列数已满，添加队列失败:【{}】", name);
@@ -81,21 +81,35 @@ public class SugarMQMessageManager {
 			message.setJMSDestination(queue);
 			logger.debug("将消息放入分发队列:【{}】", message);
 			queue.putMessage(message);
-			
+			messageVoList.add(message);
 		} else if(destination instanceof Topic) {
 			logger.debug("主题消息【{}】", message);
 		}
 	}
-	
+
+	/**
+	 * 内部调用
+	 * @param name
+	 * @return
+	 */
 	public SugarMQMessageContainer getSugarMQMessageContainer(String name) {
 		SugarMQMessageContainer queue = messageContainerMap.putIfAbsent(name, new SugarMQMessageContainer(name, 
 				MessageContainerType.QUEUE.getValue()));
-		
 		if(queue == null) {
 			queue = messageContainerMap.get(name);
 		}
-		
 		return queue;
+	}
+	/**
+	 * web层调用
+	 */
+	public List<Message> getMessageList(String name){
+		List<Message> messageVoList = allMessageMap.putIfAbsent(name,
+				new ArrayList<>());
+		if (messageVoList==null){
+			messageVoList = allMessageMap.get(name);
+		}
+		return messageVoList;
 	}
 	
 	/**
@@ -175,6 +189,8 @@ public class SugarMQMessageManager {
 	public void receiveConsumerAcknowledgeMessage(Message message) throws JMSException {
 		removeMessage(message);
 	}
-	
-	
+
+	public ConcurrentHashMap<String, List<Message>> getAllMessageMap() {
+		return allMessageMap;
+	}
 }

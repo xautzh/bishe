@@ -9,6 +9,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:3.8.1" level="project" />
+    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.16.8" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.glassfish:javax.jms:3.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-aop:4.1.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: aopalliance:aopalliance:1.0" level="project" />

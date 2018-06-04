@@ -1,19 +1,27 @@
 package com.sugarmq.service.serviceImp;
 
+import com.sugarmq.constant.MessageState;
 import com.sugarmq.manager.SugarMQServerManager;
 import com.sugarmq.queue.SugarMQMessageContainer;
 import com.sugarmq.response.ConsumerResponse;
 import com.sugarmq.response.DataResponse;
+import com.sugarmq.response.MessageResponse;
 import com.sugarmq.serverInit.ServerInit;
 import com.sugarmq.service.PageDataService;
 import com.sugarmq.vo.ConsumerVo;
+import com.sugarmq.vo.MessageVo;
 import com.sugarmq.vo.QueueVo;
 import org.springframework.stereotype.Service;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.TextMessage;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -53,7 +61,7 @@ public class PageDataServiceImp implements PageDataService {
         String queueName = containerName;
         ConsumerResponse consumerResponse = new ConsumerResponse();
         List<ConsumerVo> resultList = new ArrayList<>();
-        for (int i = 0;i<consumerVoList.size();i++){
+        for (int i = 0; i < consumerVoList.size(); i++) {
             ConsumerVo consumerVo = new ConsumerVo();
             consumerVo.setQueueName(queueName);
             consumerVo.setConsumerID(consumerVoList.get(i).getConsumerID());
@@ -64,12 +72,58 @@ public class PageDataServiceImp implements PageDataService {
         return consumerResponse;
     }
 
+    @Override
+    public MessageResponse messageResponse(String containerName) {
+        MessageResponse messageResponse = new MessageResponse();
+        List<MessageVo> messageVoList = new ArrayList<>();
+        serverInit = ServerInit.getServerInit();
+        sugarMQServerManager = serverInit.getSugarMQServerManager();
+        List<Message> allMessageList = serverInit.
+                getSugarMQServerManager().
+                getSugarMQMessageManager().
+                getAllMessageMap().
+                get(containerName);
+        System.out.println(allMessageList.size()+"所有消息");
+        SugarMQMessageContainer messageContainer = sugarMQServerManager.
+                getSugarMQMessageManager().
+                getMessageContainerMap().
+                get(containerName);
+        System.out.println("发送队列中的消息"+messageContainer.getMessageQueue().size());
+        BlockingQueue<Message> sendQueue = messageContainer.getMessageQueue();
+        for (Message message : allMessageList) {
+            MessageVo messageVo = new MessageVo();
+            messageVo.setQueueName(containerName);
+            if (sendQueue.contains(message)){
+                messageVo.setMessageState(MessageState.CONSUMING.getValue());
+            }else {
+                messageVo.setMessageState(MessageState.CONSUMED.getValue());
+            }
+            try {
+                messageVo.setMessageID(message.getJMSMessageID());
+                messageVo.setMessageText(((TextMessage) message).getText());
+                messageVo.setSendTime(timeString(message.getJMSTimestamp()));
+                messageVoList.add(messageVo);
+            } catch (JMSException e) {
+                //异常
+                e.printStackTrace();
+            }
+        }
+        messageResponse.setMessageVoList(messageVoList);
+        return messageResponse;
+    }
+
     private List<ConsumerVo> consumerNumber(String containerName) {
         serverInit = ServerInit.getServerInit();
         sugarMQServerManager = serverInit.getSugarMQServerManager();
         ConcurrentHashMap<String, List<ConsumerVo>> consumerMap =
                 sugarMQServerManager.getSugarMQConsumerManager().getConsumerMap();
         return consumerMap.get(containerName);
+    }
+
+    private String timeString(long time) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String timeString = simpleDateFormat.format(time);
+        return timeString;
     }
 
 }

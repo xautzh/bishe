@@ -5,7 +5,7 @@ package com.sugarmq.constant;
 
 /**
  * 提供者用到的消息属性
- * @author manzhizhen
+ * @author xautzh
  * 
  */
 public enum MessageProperty {

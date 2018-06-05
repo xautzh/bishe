@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Session 的 ID 生成器
  * ID总位数为21位
- * @author manzhizhen
+ * @author xautzh
  *
  */
 public class SessionIdGenerate {

@@ -30,7 +30,7 @@ import com.sugarmq.util.MessageIdGenerate;
 
 /**
  * 消息分发和消息发送的实现类
- * @author manzhizhen
+ * @author xautzh
  *
  */
 public class MessageDispatcher {

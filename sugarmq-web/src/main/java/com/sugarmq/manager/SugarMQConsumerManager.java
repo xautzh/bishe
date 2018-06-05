@@ -35,9 +35,9 @@ import com.sugarmq.util.DateUtils;
  * 类说明：消费者管理器
  *
  * 类描述：
- * @author manzhizhen
+ * @author xautzh
  *
- * 2014年12月12日
+ * 2018年5月20日
  */
 @Component
 public class SugarMQConsumerManager {
@@ -116,7 +116,8 @@ public class SugarMQConsumerManager {
 		}else {
 			consumerMap.get(container.getName()).add(consumerVo);
 		}
-
+		//刷新队列主题消息缓存
+		container.commitTopicMessage();
 		SugarMQConsumerDispatcher sugarMQConsumerDispatcher = consumerDispatcherMap.putIfAbsent(container.getName(), 
 				new SugarMQConsumerDispatcher(this, container));
 		
@@ -157,9 +158,11 @@ public class SugarMQConsumerManager {
 		
 		logger.debug("准备将消息推送到一个消费者的待发送队列中【{}】", message);
 		
-		SugarMQMessageContainer sugarMQMessageContainer = (SugarMQMessageContainer) message.getJMSDestination();
-		PollArray<String> pollArray = destinationMap.putIfAbsent(sugarMQMessageContainer.getQueueName(), new PollArray<String>(10));
-		
+		SugarMQDestination sugarMQDestination = (SugarMQDestination) message.getJMSDestination();
+		PollArray<String> pollArray = destinationMap.putIfAbsent(sugarMQDestination.getName(), new PollArray<String>(10));
+		if (pollArray==null){
+			pollArray = destinationMap.get(sugarMQDestination.getName());
+		}
 		String nextConsumerId;
 		try {
 			nextConsumerId = pollArray.getNext();
@@ -175,7 +178,7 @@ public class SugarMQConsumerManager {
 		try {
 			queue.put(message);
 			// 之所以给消费者推送消息设置阻塞开关，是为了防止消费者处理不过来造成消费者端消息堆积，这里暂时不设置阻塞
-			updateConsumerState(sugarMQMessageContainer.getQueueName(), nextConsumerId, false);
+			updateConsumerState(sugarMQDestination.getName(), nextConsumerId, false);
 			logger.debug("成功将消息【{}】推送到消费者【{}】队列！", message, nextConsumerId);
 		} catch (InterruptedException e) {
 			logger.error("将消息【{}】推送到消费者【{}】队列失败！", message, nextConsumerId);

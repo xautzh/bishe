@@ -113,9 +113,9 @@ public class SugarMQSession implements Session{
 				messageDispatcher.getSendMessageQueue(), 10);
 		sugarQueueReceiver.setState(ConsumerState.WORKING.getValue());
 		messageDispatcher.addConsumer(sugarQueueReceiver);
-		
 		consumerMap.put(sugarQueueReceiver.getConsumerId(), sugarQueueReceiver);
 		System.out.println("当前的consumerMap大小为"+consumerMap.size());
+		sugarQueueReceiver.start();
 		return sugarQueueReceiver;
 	}
 
@@ -178,7 +178,6 @@ public class SugarMQSession implements Session{
 			logger.warn("传入的Destination非法！");
 			throw new JMSException("传入的Destination非法！");
 		}
-		
 		SugarMQMessageProducer sugarQueueSender = new SugarMQMessageProducer(destination, messageDispatcher);
 		return sugarQueueSender;
 	}
@@ -221,9 +220,9 @@ public class SugarMQSession implements Session{
 	}
 
 	@Override
-	public Topic createTopic(String arg0) throws JMSException {
+	public Topic createTopic(String s) throws JMSException {
 		// TODO Auto-generated method stub
-		return null;
+		return new SugarMQDestination(s,MessageContainerType.TOPIC.getValue());
 	}
 
 	@Override

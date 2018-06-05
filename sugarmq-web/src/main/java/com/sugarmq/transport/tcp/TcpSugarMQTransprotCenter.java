@@ -26,9 +26,9 @@ import com.sugarmq.transport.SugarMQTransprotCenter;
  * 类说明：
  *
  * 类描述：
- * @author manzhizhen
+ * @author xautzh
  *
- * 2014年12月11日
+ * 2018年5月17日
  */
 public class TcpSugarMQTransprotCenter implements SugarMQTransprotCenter{
 	private InetAddress inetAddress;

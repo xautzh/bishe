@@ -12,9 +12,9 @@ import com.sugarmq.manager.SugarMQMessageManager;
  * 类说明：
  *
  * 类描述：
- * @author manzhizhen
+ * @author xautzh
  *
- * 2014年12月15日
+ * 2018年5月17日
  */
 public interface SugarMQTransprotCenter {
 	public void start() throws JMSException;

@@ -45,7 +45,7 @@ public class Client {
                 @Override
                 public void onMessage(Message message) {
                     try {
-                        System.out.println(((TextMessage) message).getText());
+                        System.out.println("consumer:[xautXH0]收到消息："+((TextMessage) message).getText());
                     } catch (JMSException e) {
                         e.printStackTrace();
                     }

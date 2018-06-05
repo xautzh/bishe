@@ -10,7 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * 
  * 类描述：
  * 
- * @author manzhizhen
+ * @author xautzh
  * 
  *         2014年12月20日
  */

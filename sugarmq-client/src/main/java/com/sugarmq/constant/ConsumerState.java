@@ -7,9 +7,9 @@ package com.sugarmq.constant;
  * 类说明：消费者状态
  *
  * 类描述：
- * @author manzhizhen
+ * @author xautzh
  *
- * 2014年12月17日
+ * 2018年5月17日
  */
 public enum ConsumerState {
 	CREATE("0"),

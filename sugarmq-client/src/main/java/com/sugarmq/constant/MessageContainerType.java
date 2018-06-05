@@ -7,9 +7,9 @@ package com.sugarmq.constant;
  * 类说明：消息容器类型
  *
  * 类描述：
- * @author manzhizhen
+ * @author xautzh
  *
- * 2014年12月10日
+ * 2018年5月17日
  */
 public enum MessageContainerType {
 	QUEUE("QUEUE"),	// 队列

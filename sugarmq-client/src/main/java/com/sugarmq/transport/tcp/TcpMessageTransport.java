@@ -23,7 +23,7 @@ import com.sugarmq.transport.SugarMQTransport;
 
 /**
  * 采用Socket来传输对象
- * @author manzhizhen
+ * @author xautzh
  *
  */
 public class TcpMessageTransport extends SugarMQTransport{

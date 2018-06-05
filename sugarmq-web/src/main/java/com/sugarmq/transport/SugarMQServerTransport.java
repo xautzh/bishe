@@ -10,7 +10,7 @@ import javax.jms.Message;
 
 /**
  * 服务端传送器接口
- * @author manzhizhen
+ * @author xautzh
  *
  */
 public interface SugarMQServerTransport {

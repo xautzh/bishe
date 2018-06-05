@@ -18,7 +18,7 @@ import com.sugarmq.transport.tcp.TcpMessageTransport;
 
 /**
  * 传送器工厂
- * @author manzhizhen
+ * @author xautzh
  *
  */
 public class SugarMQTransportFactory {

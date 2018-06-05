@@ -18,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * 队列和主题的消息容器
  *
- * @author manzhizhen
+ * @author xautzh
  */
 public class SugarMQMessageContainer extends SugarMQDestination {
     private static final long serialVersionUID = 2122365866558582491L;
@@ -27,6 +27,8 @@ public class SugarMQMessageContainer extends SugarMQDestination {
     private transient BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<Message>();
     // 已发送的消息队列
     private transient BlockingQueue<Message> consumeMessageQueue = new LinkedBlockingQueue<Message>();
+
+    private transient List<Message> topicMessageList = new ArrayList<>();
 
     private static Logger logger = LoggerFactory.getLogger(SugarMQMessageContainer.class);
 
@@ -46,6 +48,33 @@ public class SugarMQMessageContainer extends SugarMQDestination {
             logger.debug("往队列【{}】添加一条消息:{}", name, message);
         } catch (InterruptedException e) {
             logger.error("往队列【{}】添加消息【{}】失败:{}", name, message, e);
+            throw new JMSException(e.getMessage());
+        }
+    }
+
+    public void putTopicMessage(Message message) throws JMSException {
+        message.setJMSTimestamp(new Date().getTime());
+        topicMessageList.add(message);
+    }
+    public  void commitTopicMessage() throws JMSException {
+        try {
+            System.out.println("主题列表大小"+topicMessageList.size());
+            List<Message> newList = new ArrayList<>();
+            //根据消息的持续时间判断消息是否需要存在列表中
+            for (Message m : topicMessageList) {
+                long expiration = m.getJMSExpiration();
+                long misTime = (new Date().getTime()) - m.getJMSTimestamp();
+                if (expiration < misTime) {
+                    continue;
+                }
+                newList.add(m);
+                messageQueue.put(m);
+                logger.debug("往队列【{}】添加一条消息:{}", name, m);
+            }
+            topicMessageList = newList;
+
+        } catch (InterruptedException e) {
+            logger.error("往队列【{}】添加消息【{}】失败:{}", name, e);
             throw new JMSException(e.getMessage());
         }
     }
@@ -109,10 +138,6 @@ public class SugarMQMessageContainer extends SugarMQDestination {
         return messageQueue;
     }
 
-    public void setMessageQueue(BlockingQueue<Message> messageQueue) {
-        this.messageQueue = messageQueue;
-    }
-
     /**
      * 移除一条消息
      *
@@ -124,6 +149,7 @@ public class SugarMQMessageContainer extends SugarMQDestination {
 
     /**
      * 获取队列大小
+     *
      * @return
      */
     public Integer getMessageQueueSize() {

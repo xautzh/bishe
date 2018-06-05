@@ -11,7 +11,7 @@ import javax.jms.Message;
 
 /**
  * 客户端传送器的接口
- * @author manzhizhen
+ * @author xautzh
  * 
  */
 public abstract class SugarMQTransport {

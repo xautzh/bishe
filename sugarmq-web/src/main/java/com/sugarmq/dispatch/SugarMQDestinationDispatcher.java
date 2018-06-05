@@ -23,7 +23,7 @@ import com.sugarmq.message.bean.SugarMQMessage;
 /**
  * 消息目的地分发器
  * 每个Transprot连接器配置一个该分发器来分发消息到目的地
- * @author manzhizhen
+ * @author xautzh
  *
  */
 public class SugarMQDestinationDispatcher {

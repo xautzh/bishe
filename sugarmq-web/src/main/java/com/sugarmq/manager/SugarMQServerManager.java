@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Web端核心管理类
  *
- * @author Administrator
+ * @author xautzh
  */
 @Component
 @PropertySource(value = "classpath:sugarmq-config.properties", ignoreResourceNotFound = true)

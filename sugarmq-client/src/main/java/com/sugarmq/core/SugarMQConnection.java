@@ -30,7 +30,7 @@ import com.sugarmq.util.SessionIdGenerate;
 
 /**
  * 
- * @author manzhizhen
+ * @author xautzh
  *
  */
 public class SugarMQConnection implements Connection{

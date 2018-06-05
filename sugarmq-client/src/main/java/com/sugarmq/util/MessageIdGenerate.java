@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 用来生成消息ID
  * ID总位数为21位
- * @author manzhizhen
+ * @author xautzh
  */
 public class MessageIdGenerate {
 	private static Logger logger = LoggerFactory.getLogger(MessageIdGenerate.class);

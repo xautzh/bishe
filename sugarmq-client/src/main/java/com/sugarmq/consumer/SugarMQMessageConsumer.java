@@ -83,6 +83,8 @@ public class SugarMQMessageConsumer implements MessageConsumer {
 	 */
 	public void start() {
 		// TODO:
+		new Thread(consumeMessageTask).start();
+		new Thread(ackMessageTask).start();
 	}
 	
 	/**
@@ -110,7 +112,7 @@ public class SugarMQMessageConsumer implements MessageConsumer {
 
 	@Override
 	public MessageListener getMessageListener() throws JMSException {
-		return messageListener;
+		return this.messageListener;
 	}
 
 	@Override
@@ -209,7 +211,7 @@ public class SugarMQMessageConsumer implements MessageConsumer {
 							pullMessage.setStringProperty(MessageProperty.CUSTOMER_ID.getKey(), consumerId);
 							pullMessage.setJMSMessageID(MessageIdGenerate.getNewMessageId());
 							pullMessage.setJMSType(MessageType.CUSTOMER_MESSAGE_PULL.getValue());
-							pullMessage.setJMSDestination(message.getJMSDestination());
+							pullMessage.setJMSDestination(consumer.getDestination());
 							sendMessageQueue.put(pullMessage);
 							
 							logger.debug("拉取消息【{}】已被放入发送队列。", pullMessage);

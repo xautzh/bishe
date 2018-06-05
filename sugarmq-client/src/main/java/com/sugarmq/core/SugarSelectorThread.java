@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * 选择器线程
- * @author manzhizhen
+ * @author xautzh
  *
  */
 

@@ -25,7 +25,7 @@ import com.sugarmq.transport.SugarMQTransprotCenter;
 /**
  * 
  * 
- * @author manzhizhen
+ * @author xautzh
  * 
  */
 public class TcpSugarMQServerTransport implements SugarMQServerTransport {

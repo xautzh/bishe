@@ -6,7 +6,7 @@ package com.sugarmq.constant;
 /**
  * 连接器相关属性
  * 
- * @author 625288
+ * @author xautzh
  *
  */
 public enum ConnectionProperty {

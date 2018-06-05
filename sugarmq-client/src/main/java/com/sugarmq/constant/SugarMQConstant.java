@@ -5,7 +5,7 @@ package com.sugarmq.constant;
 
 /**
  * 用到的常量
- * @author manzhizhen
+ * @author xautzh
  *
  */
 public class SugarMQConstant {

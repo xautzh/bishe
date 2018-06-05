@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
  * 类说明：日期工具类
  *
  * 类描述：日期工具类
- * @author manzhizhen
- * 2014-11-14
+ * @author xautzh
+ * 2018年5月17日
  */
 public class DateUtils {
 	public static final String DATE_FORMAT_TYPE1 = "yyyy-MM-dd HH:mm:ss";

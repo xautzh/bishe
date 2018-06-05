@@ -18,9 +18,9 @@ import com.sugarmq.queue.SugarMQMessageContainer;
  * 类说明：消费者消息分发器
  *
  * 类描述：消费者消息分发器,每个消息队列配置一个
- * @author manzhizhen
+ * @author xautzh
  *
- * 2014年12月12日
+ * 2018年5月16日
  */
 public class SugarMQConsumerDispatcher {
 	private SugarMQConsumerManager sugarMQCustomerManager;

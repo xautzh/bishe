@@ -19,7 +19,7 @@ import com.sugarmq.transport.tcp.TcpSugarMQTransprotCenter;
 
 /**
  * 服务端传送器工厂
- * @author manzhizhen
+ * @author xautzh
  *
  */
 @Component

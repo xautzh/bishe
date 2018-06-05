@@ -6,7 +6,7 @@ package com.sugarmq.constant;
 /**
  * 连接器类型
  * 目前只支持TCP和NIO
- * @author manzhizhen
+ * @author xautzh
  *
  */
 public enum TransportType {

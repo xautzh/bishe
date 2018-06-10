@@ -18,7 +18,7 @@ public class SugarmqApplication {
 
     public static void main(String[] args) throws JMSException {
         SpringApplication.run(SugarmqApplication.class, args);
-
         ServerInit.getServerInit().start();
+//        ServerInit.getServerInit().getSugarMQServerManager().getSugarMQMessageManager().flushAllQueu();
     }
 }

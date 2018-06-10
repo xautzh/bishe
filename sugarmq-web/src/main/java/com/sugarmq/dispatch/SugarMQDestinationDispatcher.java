@@ -90,7 +90,6 @@ public class SugarMQDestinationDispatcher {
 						} else if(MessageType.CUSTOMER_ACKNOWLEDGE_MESSAGE.getValue().
 								equals(message.getJMSType())) {
 							logger.debug("消费者应答消息【{}】", message);
-							
 							sugarMQMessageManager.removeMessage(message);
 						
 						// 消费者注册消息

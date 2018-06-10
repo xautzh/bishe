@@ -266,6 +266,7 @@ public class SugarMQMessageConsumer implements MessageConsumer {
 					ackMessage.setJMSCorrelationID(message.getJMSMessageID());
 					ackMessage.setJMSMessageID(MessageIdGenerate.getNewMessageId());
 					ackMessage.setJMSDestination(message.getJMSDestination());
+					ackMessage.setJMSDestination(message.getJMSDestination());
 					sendMessageQueue.put(ackMessage);
 					logger.debug("应答消息【{}】已被放入发送队列。", ackMessage);
 					

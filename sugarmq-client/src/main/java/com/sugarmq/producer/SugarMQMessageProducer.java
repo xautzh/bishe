@@ -10,7 +10,11 @@ import com.sugarmq.transport.MessageDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.*;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -57,10 +61,14 @@ public class SugarMQMessageProducer implements MessageProducer {
         logger.debug("即将发送一条消息:{}", message);
         message.setJMSType(MessageType.PRODUCER_MESSAGE.getValue()); // 设置消息类型
         message.setJMSDestination(destination);
-        if (((SugarMQDestination)destination).isTopic()){
+        if (((SugarMQDestination) destination).isTopic()) {
             //设置持续时间 默认为一天
-            message.setJMSExpiration(1000*60*60*24);
+            message.setJMSExpiration(1000 * 60 * 60 * 24);
+        } else {
+            //队列消息默认十分钟
+            message.setJMSExpiration(1000 * 60 * 10);
         }
+        message.setJMSTimestamp(new Date().getTime());
         message.setBooleanProperty(MessageProperty.DISABLE_MESSAGE_ID.getKey(), disableMessageId.get());
         messageDispatcher.sendMessage(message);
     }

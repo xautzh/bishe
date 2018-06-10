@@ -3,6 +3,7 @@
  */
 package com.sugarmq.queue;
 
+import com.sugarmq.dao.MessageDao;
 import com.sugarmq.message.SugarMQDestination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +57,10 @@ public class SugarMQMessageContainer extends SugarMQDestination {
         message.setJMSTimestamp(new Date().getTime());
         topicMessageList.add(message);
     }
-    public  void commitTopicMessage() throws JMSException {
+
+    public void commitTopicMessage() throws JMSException {
         try {
-            System.out.println("主题列表大小"+topicMessageList.size());
+            System.out.println("主题列表大小" + topicMessageList.size());
             List<Message> newList = new ArrayList<>();
             //根据消息的持续时间判断消息是否需要存在列表中
             for (Message m : topicMessageList) {
@@ -147,12 +149,38 @@ public class SugarMQMessageContainer extends SugarMQDestination {
         consumeMessageQueue.remove(message);
     }
 
+    public void putConsumeMessage(Message message) {
+        try {
+            consumeMessageQueue.put(message);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void flushQueue() throws JMSException {
+        MessageDao dao = new MessageDao();
+        List<Message> messageList = dao.queryMessage(this.name,this.type);
+        for(Message m:messageList){
+            if (!messageQueue.contains(m)){
+                try {
+                    messageQueue.put(m);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     /**
      * 获取队列大小
      *
      * @return
      */
     public Integer getMessageQueueSize() {
+
         return this.messageQueue.size();
+    }
+
+    public BlockingQueue<Message> getConsumeMessageQueue() {
+        return consumeMessageQueue;
     }
 }

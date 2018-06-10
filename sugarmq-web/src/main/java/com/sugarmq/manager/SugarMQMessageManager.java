@@ -2,6 +2,7 @@ package com.sugarmq.manager;
 
 import com.sugarmq.constant.MessageContainerType;
 import com.sugarmq.constant.MessageProperty;
+import com.sugarmq.dao.MessageDao;
 import com.sugarmq.message.SugarMQDestination;
 import com.sugarmq.message.bean.SugarMQMessage;
 import com.sugarmq.queue.SugarMQMessageContainer;
@@ -13,9 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-import javax.jms.*;
+import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
+import javax.jms.Message;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -148,15 +152,25 @@ public class SugarMQMessageManager {
     public void removeMessage(Message message) throws JMSException {
         // 将消息放入消息队列
         SugarMQDestination sugarQueue = (SugarMQDestination) message.getJMSDestination();
+        System.out.println("目的地" + sugarQueue.getName());
         SugarMQMessageContainer queue = messageContainerMap.get(sugarQueue.getQueueName());
-
+        Message removeMessage = null;
         if (queue != null) {
             // 如果是持久化消息，需要将消息持久化。
-            if (DeliveryMode.PERSISTENT == message.getJMSDeliveryMode()) {
-                removePersistentMessage(message);
+            BlockingQueue<Message> consumeQueue = queue.getConsumeMessageQueue();
+            for (Message m : consumeQueue) {
+                if (m.getJMSMessageID().equals(message.getJMSCorrelationID())) {
+                    removeMessage = m;
+                    break;
+                }
+            }
+            logger.debug("测试：队列内容为【{}】", queue.toString());
+            if (DeliveryMode.PERSISTENT == removeMessage.getJMSDeliveryMode()) {
+                logger.debug("是持久化消息，需要从数据库中删除");
+                removePersistentMessage(removeMessage);
             }
 
-            queue.removeMessage(message);
+            queue.removeMessage(removeMessage);
         } else {
             logger.error("不存在的队列名称【{}】，移除消息{}失败！", sugarQueue.getQueueName(), message);
         }
@@ -171,6 +185,7 @@ public class SugarMQMessageManager {
      */
     private void persistentMessage(Message message) throws JMSException {
         //TODO
+        new MessageDao().addMessage(message);
     }
 
     /**
@@ -181,6 +196,7 @@ public class SugarMQMessageManager {
      */
     private void removePersistentMessage(Message message) throws JMSException {
         //TODO
+        new MessageDao().removeMessage(message);
     }
 
     /**
@@ -229,5 +245,11 @@ public class SugarMQMessageManager {
 
     public ConcurrentHashMap<String, List<Message>> getTopicMessageMap() {
         return topicMessageMap;
+    }
+    public void flushAllQueu() throws JMSException {
+        List<Message> messageList = new MessageDao().queryMessage();
+        for (Message m:messageList){
+            addMessage(m);
+        }
     }
 }

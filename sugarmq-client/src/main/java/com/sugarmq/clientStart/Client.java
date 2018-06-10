@@ -66,6 +66,7 @@ public class Client {
                 System.out.println("请输入需要发送的消息");
                 String text = scanner.nextLine();
                 message.setText(text);
+                message.setJMSDeliveryMode(2);
                 producer.send(message);
             }
         } catch (JMSException e) {

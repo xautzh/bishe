@@ -225,7 +225,7 @@ public class SupremeMQConsumerManager {
      * <p>
      * 类描述:线程安全
      *
-     * @author manzhizhen
+     * @author zh
      * <p>
      * 2014年12月12日
      */

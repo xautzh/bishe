@@ -16,7 +16,7 @@
 
     </dependencies>
     <parent>
-		<groupId>com.manzhizhen.suprememq</groupId>
+		<groupId>com.zh.suprememq</groupId>
 		<artifactId>suprememq-parent</artifactId>
 		<version>1.0.1</version>
 	</parent>

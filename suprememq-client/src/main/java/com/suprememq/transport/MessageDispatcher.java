@@ -285,7 +285,7 @@ public class MessageDispatcher {
 	 * 类说明：带有消息负载的闭锁
 	 *
 	 * 类描述：主要用于阻塞发送后返回应答消息
-	 * @author manzhizhen
+	 * @author zh
 	 *
 	 * 2014年12月17日
 	 */

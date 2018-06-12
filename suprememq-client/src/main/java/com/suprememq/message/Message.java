@@ -38,7 +38,7 @@ public abstract class Message implements javax.jms.Message, Serializable{
 	protected Map<String, String> stringMap = new HashMap<String, String>(5);
 	protected Map<String, Object> objectMap = new HashMap<String, Object>(5);
 	
-	public static final int OBJECT_BYTE_SIZE = 2048;
+	public static final int OBJECT_BYTE_SIZE = 20480000;
 	
 	public Message() {
 	}

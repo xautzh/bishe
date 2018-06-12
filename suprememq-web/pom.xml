@@ -36,7 +36,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.manzhizhen.suprememq</groupId>
+			<groupId>com.zh.suprememq</groupId>
 			<artifactId>suprememq-client</artifactId>
 			<version>1.0.1</version>
 		</dependency>
@@ -48,6 +48,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
             <version>RELEASE</version>
         </dependency>
     </dependencies>

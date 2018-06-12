@@ -17,7 +17,7 @@ public enum MessageProperty {
 	
 	String key;
 	Object value;
-	private MessageProperty(String key, Object value) {
+	MessageProperty(String key, Object value) {
 		this.key = key;
 		this.value = value;
 	}

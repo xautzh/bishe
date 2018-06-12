@@ -16,7 +16,7 @@ public enum MessageContainerType {
 	TOPIC("TOPIC");	// 主题
 	
 	String value;
-	private MessageContainerType(String value) {
+	MessageContainerType(String value) {
 		this.value = value;
 	}
 	

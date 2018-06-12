@@ -139,6 +139,11 @@ public class SugarMQServerManager {
 
 
     public SugarMQConsumerManager getSugarMQConsumerManager() {
+
         return sugarMQConsumerManager;
+    }
+
+    public SugarMQTransprotCenter getSugarMQTransprotCenter() {
+        return sugarMQTransprotCenter;
     }
 }

@@ -139,16 +139,6 @@ public class SugarMQConnection implements Connection{
 			logger.info("SugarMQConnection开始启动！");
 			sugarMQTransport.start();
 			messageDispatcher.start();
-			
-			// 将客户端的定制参数传给服务端
-//			SugarMQMapMessage message = new SugarMQMapMessage();
-//			message.setJMSType(MessageType.CUSTOMER_MESSAGE_PULL.getValue());
-//			message.setInt(ConnectionProperty.CLIENT_MESSAGE_BATCH_ACK_QUANTITY.getKey(),
-//					(Integer) ConnectionProperty.CLIENT_MESSAGE_BATCH_ACK_QUANTITY.getValue());
-//
-//			messageDispatcher.sendMessage(message);
-			
-			// 消费者消费消息和发送应答消息的线程池执行器
 			threadPoolExecutor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 			
 			for(SugarMQSession session : sessionMap.values()) {

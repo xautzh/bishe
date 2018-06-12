@@ -197,7 +197,6 @@ public class SugarMQMessageConsumer implements MessageConsumer {
 					logger.error("消费者{}没有配置消息监听器！", consumer);
 					return ;
 				}
-				
 				BlockingQueue<Message> queue = consumer.getMessageQueue();
 				Message message = null;
 				while(!Thread.currentThread().isInterrupted() && 

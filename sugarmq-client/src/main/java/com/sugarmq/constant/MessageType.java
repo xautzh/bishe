@@ -18,10 +18,11 @@ public enum MessageType {
 	CUSTOMER_MESSAGE_PULL("CUSTOMER_MESSAGE_PULL"),	// 消费者拉取消息
 	CONNECTION_INIT_PARAM("CONNECTION_INIT_PARAM"), // 连接初始化参数消息
 	CUSTOMER_REGISTER_MESSAGE("CUSTOMER_REGISTER_MESSAGE"),	// 消费者注册消息
+	DISCONNECT_MESSAGE("DISCONNECT_MESSAGE"),
 	CUSTOMER_REGISTER_ACKNOWLEDGE_MESSAGE("CUSTOMER_REGISTER_ACKNOWLEDGE_MESSAGE");	// 消费者注册应答消息
 	
 	String value;
-	private MessageType(String value) {
+	MessageType(String value) {
 		this.value = value;
 	}
 	

@@ -7,10 +7,11 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 
 public class SupremeConnectionFactory {
+    static SugarMQConnectionFactory facotory;
     public static Session connection(String url) {
         Session session = null;
         try {
-            SugarMQConnectionFactory facotory = new SugarMQConnectionFactory(url);
+             facotory = new SugarMQConnectionFactory(url);
             Connection connection = facotory.createConnection();
             connection.start();
             session =
@@ -19,5 +20,8 @@ public class SupremeConnectionFactory {
             e.printStackTrace();
         }
         return session;
+    }
+    public static void close(){
+        facotory.close();
     }
 }

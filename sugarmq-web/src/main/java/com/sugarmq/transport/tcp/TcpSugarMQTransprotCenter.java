@@ -75,9 +75,7 @@ public class TcpSugarMQTransprotCenter implements SugarMQTransprotCenter{
 						tcpSugarMQServerTransport.getSendMessageQueue(), sugarMQMessageManager, sugarMQCustomerManager);
 				tcpSugarMQServerTransport.start();
 				sugarMQDestinationDispatcher.start();
-				
 				transprotMap.put(tcpSugarMQServerTransport, sugarMQDestinationDispatcher);
-//				new Thread(new TcpReceiveThread(sugarQueueManager, this)).start();
 			} catch (IOException e) {
 				logger.error("TcpSugarMQServerTransport启动失败：", e);
 			}
@@ -91,7 +89,6 @@ public class TcpSugarMQTransprotCenter implements SugarMQTransprotCenter{
 			entry.getKey().close();
 			entry.getValue().stop();
 		}
-		
 		try {
 			serverSocket.close();
 		} catch (IOException e) {
@@ -118,9 +115,11 @@ public class TcpSugarMQTransprotCenter implements SugarMQTransprotCenter{
 		if(sugarMQServerTransport == null) {
 			throw new IllegalArgumentException("SugarMQServerTransport不能为空！");
 		}
-		
 		transprotMap.remove(sugarMQServerTransport);
-		
 		logger.debug("TcpSugarMQTransprotCenter已经移除了【{}】", sugarMQServerTransport);
+	}
+
+	public ConcurrentHashMap<TcpSugarMQServerTransport, SugarMQDestinationDispatcher> getTransprotMap() {
+		return transprotMap;
 	}
 }

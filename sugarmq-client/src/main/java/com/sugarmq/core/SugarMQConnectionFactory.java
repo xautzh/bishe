@@ -22,13 +22,17 @@ public class SugarMQConnectionFactory implements ConnectionFactory,
 
 	private Logger logger = LoggerFactory.getLogger(SugarMQConnectionFactory.class);
 	private SugarMQTransport sugarMQTransport;
-	
+	public void close(){
+		try {
+			sugarMQTransport.close();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * 通过IP地址和端口创建SugarMQConnectionFactory对象
-	 * 
-	 * @param ipAddress
-	 * @param port
+	 *
 	 */
 	public SugarMQConnectionFactory(String providerURl) throws JMSException {
 		sugarMQTransport = SugarMQTransportFactory.createSugarMQTransport(providerURl);

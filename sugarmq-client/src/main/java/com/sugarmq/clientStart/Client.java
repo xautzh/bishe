@@ -73,25 +73,21 @@ public class Client {
             e.printStackTrace();
         }
     }
-
-    public Session getSession() {
-        return session;
-    }
-
-    public void setSession(Session session) {
-        this.session = session;
-    }
-
-    public MessageProducer getProducer() {
-        return producer;
-    }
-
-    public void setProducer(MessageProducer producer) {
-        this.producer = producer;
-    }
-
-    public MessageConsumer getConsumer() {
-        return consumer;
+    public void producerOnline() {
+        try {
+            Queue producerQueue = session.createQueue("xautZH0");
+            producer = session.createProducer(producerQueue);
+            TextMessage message = session.createTextMessage();
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                System.out.println("请输入需要发送的消息");
+                String text = scanner.nextLine();
+                message.setText(text);
+                producer.send(message);
+            }
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setConsumer(MessageConsumer consumer) {

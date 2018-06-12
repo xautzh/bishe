@@ -5,7 +5,7 @@ public enum  MessageState {
     CONSUMED("已消费");
 
     String value;
-    private MessageState(String value) {
+    MessageState(String value) {
         this.value = value;
     }
 

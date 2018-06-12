@@ -17,7 +17,7 @@ public enum ConsumerState {
 	DEATH("2");
 	
 	String value;
-	private ConsumerState(String value) {
+	ConsumerState(String value) {
 		this.value = value;
 	}
 	

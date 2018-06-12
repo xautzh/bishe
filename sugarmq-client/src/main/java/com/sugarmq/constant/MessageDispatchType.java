@@ -15,7 +15,7 @@ public enum MessageDispatchType {
 	IN_TURN("IN_TURN");
 	
 	String value;
-	private MessageDispatchType(String value) {
+	MessageDispatchType(String value) {
 		this.value = value;
 	}
 	

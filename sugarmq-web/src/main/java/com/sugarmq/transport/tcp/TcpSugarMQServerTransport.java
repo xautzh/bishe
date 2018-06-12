@@ -233,7 +233,8 @@ public class TcpSugarMQServerTransport implements SugarMQServerTransport {
 		
 		logger.info("TcpSugarMQServerTransport消息发送线程结束！");
 	}
-	
-	
 
+	public Socket getSocket() {
+		return socket;
+	}
 }

@@ -2,12 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.manzhizhen.sugarmq</groupId>
-	<artifactId>sugarmq-parent</artifactId>
+	<groupId>com.manzhizhen.suprememq</groupId>
+	<artifactId>suprememq-parent</artifactId>
 	<version>1.0.1</version>
 	<packaging>pom</packaging>
 
-	<name>sugarmq-parent</name>
+	<name>suprememq-parent</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -118,7 +118,7 @@
 		</dependency>
 	</dependencies>
 	<modules>
-		<module>sugarmq-web</module>
-		<module>sugarmq-client</module>
+		<module>suprememq-web</module>
+		<module>suprememq-client</module>
 	</modules>
 </project>

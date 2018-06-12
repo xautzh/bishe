@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/sugarmq-web/sugarmq.iml" filepath="$PROJECT_DIR$/sugarmq-web/sugarmq.iml" />
-      <module fileurl="file://$PROJECT_DIR$/sugarmq-client/sugarmq-client.iml" filepath="$PROJECT_DIR$/sugarmq-client/sugarmq-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/sugarmq-parent.iml" filepath="$PROJECT_DIR$/sugarmq-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/suprememq-web/suprememq.iml" filepath="$PROJECT_DIR$/suprememq-web/suprememq.iml" />
+      <module fileurl="file://$PROJECT_DIR$/suprememq-client/suprememq-client.iml" filepath="$PROJECT_DIR$/suprememq-client/suprememq-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/suprememq-parent.iml" filepath="$PROJECT_DIR$/suprememq-parent.iml" />
     </modules>
   </component>
 </project>

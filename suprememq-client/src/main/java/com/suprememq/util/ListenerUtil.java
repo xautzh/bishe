@@ -12,7 +12,7 @@ public class ListenerUtil {
                 @Override
                 public void onMessage(Message message) {
                     try {
-                        System.out.println(destination+":收到消息"+((TextMessage)message).getText());
+                        System.out.println("消费者从"+destination+"收到消息:"+((TextMessage)message).getText());
                     } catch (JMSException e) {
                         e.printStackTrace();
                     }

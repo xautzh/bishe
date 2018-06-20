@@ -192,7 +192,7 @@ public class SupremeMQMessageConsumer implements MessageConsumer {
                 MessageListener listener = consumer.getMessageListener();
                 if (listener == null) {
                     SupremeMQDestination destination = (SupremeMQDestination) consumer.destination;
-                    logger.error("消费者{}没有配置消息监听器！", consumer);
+                    logger.debug("消费者{}没有配置消息监听器！", consumer);
                     listener = ListenerUtil.setListener(consumer, destination.getName());
                 }
                 BlockingQueue<Message> queue = consumer.getMessageQueue();

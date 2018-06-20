@@ -40,34 +40,20 @@ public class SupremeMQConsumerManager {
             new ConcurrentHashMap<>();
     // key-客户端消费者ID, value-SupremeMQServerTransport的sendMessageQueue
     private ConcurrentHashMap<String, BlockingQueue<Message>> customerMap =
-            new ConcurrentHashMap<String, BlockingQueue<Message>>();
+            new ConcurrentHashMap<>();
 
     // key-目的地名称，value-消费者ID容器
     private ConcurrentHashMap<String, PollArray<String>> destinationMap =
-            new ConcurrentHashMap<String, PollArray<String>>();
+            new ConcurrentHashMap<>();
 
     // 消息分发器
     private ConcurrentHashMap<String, SupremeMQConsumerDispatcher> consumerDispatcherMap =
-            new ConcurrentHashMap<String, SupremeMQConsumerDispatcher>();
+            new ConcurrentHashMap<>();
 
     // 一次性向消费者推送的消息数量
     private int clientMessageBatchSendAmount = (Integer) ConnectionProperty.CLIENT_MESSAGE_BATCH_ACK_QUANTITY.getValue();
 
     private Logger logger = LoggerFactory.getLogger(SupremeMQConsumerManager.class);
-
-    public ConcurrentHashMap<String, PollArray<String>> getDestinationMap() {
-        return destinationMap;
-    }
-
-    /**
-     * 获取该目的地下的容器大小
-     *
-     * @param name
-     * @return
-     */
-    public int getDestinationMapSize(String name) {
-        return destinationMap.get(name).size();
-    }
 
     /**
      * 新注册一个消费者
@@ -92,7 +78,7 @@ public class SupremeMQConsumerManager {
 
         customerMap.put(customerId, sendMessageQueue);
         PollArray<String> ergodicArray = destinationMap.putIfAbsent(((SupremeMQDestination) message.
-                getJMSDestination()).getQueueName(), new PollArray<String>(10));
+                getJMSDestination()).getQueueName(), new PollArray<>(10));
 
         if (ergodicArray == null) {
             ergodicArray = destinationMap.get(((SupremeMQDestination) message.
@@ -112,22 +98,17 @@ public class SupremeMQConsumerManager {
         } else {
             consumerMap.get(container.getName()).add(consumerVo);
         }
-        //刷新队列主题消息缓存
-//        container.commitTopicMessage();
         SupremeMQConsumerDispatcher SupremeMQConsumerDispatcher = consumerDispatcherMap.putIfAbsent(container.getName(),
                 new SupremeMQConsumerDispatcher(this, container));
-
         if (SupremeMQConsumerDispatcher == null) {
             logger.debug("该消费者监听的目的地还未配置消费者分发器【{}】", message);
             SupremeMQConsumerDispatcher = consumerDispatcherMap.get(container.getName());
             logger.debug("新建消费者分发器【{}】", SupremeMQConsumerDispatcher);
         }
-
         if (!SupremeMQConsumerDispatcher.isStart()) {
             SupremeMQConsumerDispatcher.start();
             logger.debug("消费者分发器启动成功【{}】", SupremeMQConsumerDispatcher);
         }
-
         // 应答消费者注册
         Message consumerAckMsg = new SupremeMQMessage();
         consumerAckMsg.setJMSType(MessageType.CUSTOMER_REGISTER_ACKNOWLEDGE_MESSAGE.getValue());
@@ -139,8 +120,6 @@ public class SupremeMQConsumerManager {
         } catch (InterruptedException e) {
             logger.error("将消费者注册应答消息放入发送队列被中断【{}】", consumerAckMsg);
         }
-
-
     }
 
     /**
@@ -148,18 +127,13 @@ public class SupremeMQConsumerManager {
      *
      * @throws JMSException
      */
-    public void putMessageToCustomerQueue(Message message) throws JMSException {
+    public void putQueueMessageToCustomerQueue(Message message) throws JMSException {
         if (message == null) {
             throw new IllegalArgumentException("Message不能为空！");
         }
-
         logger.debug("准备将消息推送到一个消费者的待发送队列中【{}】", message);
-
-        SupremeMQDestination SupremeMQDestination = (SupremeMQDestination) message.getJMSDestination();
-        PollArray<String> pollArray = destinationMap.putIfAbsent(SupremeMQDestination.getName(), new PollArray<String>(10));
-        if (pollArray == null) {
-            pollArray = destinationMap.get(SupremeMQDestination.getName());
-        }
+        SupremeMQDestination destination = (SupremeMQDestination) message.getJMSDestination();
+        PollArray<String> pollArray = getPollArray(destination);
         String nextConsumerId;
         try {
             nextConsumerId = pollArray.getNext();
@@ -167,7 +141,6 @@ public class SupremeMQConsumerManager {
             logger.error("获取下一个消费者ID失败", e);
             throw new JMSException(String.format("获取下一个消费者ID失败:{}", e));
         }
-
         BlockingQueue<Message> queue = customerMap.get(nextConsumerId);
         message.setStringProperty(MessageProperty.CUSTOMER_ID.getKey(), nextConsumerId);
         SupremeMQDestination dest = (SupremeMQDestination) message.getJMSDestination();
@@ -175,11 +148,51 @@ public class SupremeMQConsumerManager {
         try {
             queue.put(message);
             // 之所以给消费者推送消息设置阻塞开关，是为了防止消费者处理不过来造成消费者端消息堆积，这里暂时不设置阻塞
-            updateConsumerState(SupremeMQDestination.getName(), nextConsumerId, false);
+            updateConsumerState(dest.getName(), nextConsumerId, false);
             logger.debug("成功将消息【{}】推送到消费者【{}】队列！", message, nextConsumerId);
         } catch (InterruptedException e) {
             logger.error("将消息【{}】推送到消费者【{}】队列失败！", message, nextConsumerId);
         }
+    }
+
+    public void putTopicMessageToConsumerQueue(Message message) throws JMSException {
+        if (message == null) {
+            throw new IllegalArgumentException("Message不能为空！");
+        }
+        SupremeMQDestination destination = (SupremeMQDestination) message.getJMSDestination();
+        PollArray<String> pollArray = getPollArray(destination);
+        String nextConsumerId = null;
+        BlockingQueue<String> exitConsumer = new LinkedBlockingQueue<>();
+        while (!pollArray.isEmpty()){
+            try {
+                nextConsumerId = pollArray.getNext();
+                if (exitConsumer.contains(nextConsumerId)){
+                    continue;
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            BlockingQueue<Message> topic = customerMap.get(nextConsumerId);
+            message.setStringProperty(MessageProperty.CUSTOMER_ID.getKey(), nextConsumerId);
+            SupremeMQDestination dest = (SupremeMQDestination) message.getJMSDestination();
+            message.setJMSDestination(new SupremeMQDestination(dest.getName(), dest.getType()));
+            try {
+                topic.put(message);
+                updateConsumerState(destination.getName(), nextConsumerId, false);
+                logger.debug("成功将消息【{}】推送到消费者【{}】队列！", message, nextConsumerId);
+                exitConsumer.put(nextConsumerId);
+                System.out.println("消費者數量："+exitConsumer.size());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private PollArray<String> getPollArray(SupremeMQDestination destination){
+        PollArray<String> pollArray = destinationMap.putIfAbsent(destination.getName(), new PollArray<>(10));
+        if (pollArray == null) {
+            pollArray = destinationMap.get(destination.getName());
+        }
+        return pollArray;
     }
 
     /**
@@ -215,7 +228,6 @@ public class SupremeMQConsumerManager {
                 break;
             }
         }
-
         logger.debug("生成的消费者ID为【{}】", newId + next);
         return newId + next;
     }
@@ -245,21 +257,17 @@ public class SupremeMQConsumerManager {
 
             outputQueue = new LinkedBlockingQueue<T>(outputQueueSize);
 
-            thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (!isClosed.get()) {
-                        Iterator<Entry<T, Boolean>> iterator = contentArray.iterator();
-                        while (iterator.hasNext()) {
-                            try {
-                                Entry<T, Boolean> entry = iterator.next();
-                                if (!entry.getValue()) {
-                                    continue;
-                                }
-
-                                outputQueue.put(entry.getKey());
-                            } catch (InterruptedException e) {
+            thread = new Thread(() -> {
+                while (!isClosed.get()) {
+                    Iterator<Entry<T, Boolean>> iterator = contentArray.iterator();
+                    while (iterator.hasNext()) {
+                        try {
+                            Entry<T, Boolean> entry = iterator.next();
+                            if (!entry.getValue()) {
+                                continue;
                             }
+                            outputQueue.put(entry.getKey());
+                        } catch (InterruptedException e) {
                         }
                     }
                 }
@@ -334,10 +342,6 @@ public class SupremeMQConsumerManager {
                 return this.value;
             }
         }
-    }
-
-    public int getClientMessageBatchSendAmount() {
-        return clientMessageBatchSendAmount;
     }
 
     public void setClientMessageBatchSendAmount(int clientMessageBatchSendAmount) {

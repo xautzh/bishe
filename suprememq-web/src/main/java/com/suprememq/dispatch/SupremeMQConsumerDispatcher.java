@@ -1,9 +1,7 @@
-/**
- *
- */
 package com.suprememq.dispatch;
 
 import com.suprememq.manager.SupremeMQConsumerManager;
+import com.suprememq.message.SupremeMQDestination;
 import com.suprememq.queue.SupremeMQMessageContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,14 +21,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class SupremeMQConsumerDispatcher {
     private SupremeMQConsumerManager supremeMQCustomerManager;
-    private SupremeMQMessageContainer SupremeMQMessageContainer;
+    private SupremeMQMessageContainer supremeMQMessageContainer;
     private Thread dispatcherThread;
     private AtomicBoolean isStart = new AtomicBoolean(false);
 
     private static Logger logger = LoggerFactory.getLogger(SupremeMQConsumerDispatcher.class);
 
     public SupremeMQConsumerDispatcher(SupremeMQConsumerManager supremeMQCustomerManager,
-                                     SupremeMQMessageContainer SupremeMQMessageContainer) {
+                                       SupremeMQMessageContainer SupremeMQMessageContainer) {
         if (supremeMQCustomerManager == null) {
             throw new IllegalArgumentException("supremeMQCustomerManager不能为空！");
         }
@@ -40,45 +38,42 @@ public class SupremeMQConsumerDispatcher {
         }
 
         this.supremeMQCustomerManager = supremeMQCustomerManager;
-        this.SupremeMQMessageContainer = SupremeMQMessageContainer;
-    }
-
-    public void setSupremeMQMessageContainer(SupremeMQMessageContainer SupremeMQMessageContainer) {
-        if (SupremeMQMessageContainer == null) {
-            throw new IllegalArgumentException("SupremeMQMessageContainer不能为空！");
-        }
-
-        this.SupremeMQMessageContainer = SupremeMQMessageContainer;
+        this.supremeMQMessageContainer = SupremeMQMessageContainer;
     }
 
     public void start() {
         logger.info("SupremeMQConsumerDispatcher准备开始工作... ...");
 
-        dispatcherThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    //先刷新队列
-                    SupremeMQMessageContainer.flushQueue();
-                } catch (JMSException e) {
-                    logger.error("刷新队列错误");
-                    e.printStackTrace();
-
-                }
-                Message message = null;
-                while (true) {
-                    try {
-                        message = SupremeMQMessageContainer.takeMessage();
-                        logger.debug("从SupremeMQMessageContainer中拉取了一条消息:【{}】", message);
-                        SupremeMQMessageContainer.putConsumeMessage(message);
-                        supremeMQCustomerManager.putMessageToCustomerQueue(message);
-                    } catch (JMSException e) {
-                        logger.info("supremeMQCustomerDispatcher被中断！");
-                        break;
-                    }
-                }
+        dispatcherThread = new Thread(() -> {
+            try {
+                //先刷新队列
+                supremeMQMessageContainer.flushQueue();
+            } catch (JMSException e) {
+                logger.error("刷新队列错误");
+                e.printStackTrace();
 
             }
+            Message message;
+            while (true) {
+                try {
+                    message = supremeMQMessageContainer.takeMessage();
+                    logger.debug("从SupremeMQMessageContainer中拉取了一条消息:【{}】", message);
+                    SupremeMQDestination destination = (SupremeMQDestination) message.getJMSDestination();
+                    System.out.println("消息类型"+destination.getType());
+                    if (destination.isQueue()) {
+                        logger.debug("开始发送队列消息");
+                        supremeMQCustomerManager.putQueueMessageToCustomerQueue(message);
+                    } else {
+                        logger.debug("开始发送主题消息");
+                        supremeMQCustomerManager.putTopicMessageToConsumerQueue(message);
+                    }
+                    supremeMQMessageContainer.putConsumeMessage(message);
+                } catch (JMSException e) {
+                    logger.info("supremeMQCustomerDispatcher被中断！");
+                    break;
+                }
+            }
+
         });
 
         dispatcherThread.start();

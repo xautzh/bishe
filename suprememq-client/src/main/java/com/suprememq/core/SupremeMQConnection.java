@@ -98,7 +98,6 @@ public class SupremeMQConnection implements Connection{
 		String sessionId = SessionIdGenerate.getNewSessionId();
 		SupremeMQSession SupremeMQSession = new SupremeMQSession(sessionId, transacted, messageDispatcher);
 		sessionMap.put(sessionId, SupremeMQSession);
-		System.out.println("当前的sessionMap大小为"+sessionMap.size());
 		return SupremeMQSession;
 	}
 

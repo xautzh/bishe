@@ -7,7 +7,7 @@ import javax.jms.JMSException;
 public class ProducerStart {
     public static void main(String[] args) throws JMSException {
         Client client = Client.getClient();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 3; i++) {
             String queueName = randomString((int) (Math.random() * 6+5));
             client.setQueue(queueName);
             client.producerStart();

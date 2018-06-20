@@ -82,14 +82,12 @@ public class SupremeMQMessageManager {
             logger.debug("主题消息【{}】", message);
             String name = destination.getTopicName();
             SupremeMQMessageContainer topic = getSupremeMQMessageTopicContainer(name);
-            List<Message> messageVoList = getTopicMessageList(name);
             if (messageContainerMap.size() >= MAX_QUEUE_NUM) {
                 logger.warn("MOM中队列数已满，添加队列失败:【{}】", name);
                 throw new JMSException("MOM中队列数已满，添加队列失败:【{}】", name);
             }
-            message.setJMSDestination(topic);
-            topic.putTopicMessage(message);
-            messageVoList.add(message);
+            logger.debug("将消息放入分发主题队列:【{}】", message);
+            topic.putMessage(message);
         }
     }
 
@@ -152,7 +150,6 @@ public class SupremeMQMessageManager {
     public void removeMessage(Message message) throws JMSException {
         // 将消息放入消息队列
         SupremeMQDestination supremeQueue = (SupremeMQDestination) message.getJMSDestination();
-        System.out.println("目的地" + supremeQueue.getName());
         SupremeMQMessageContainer queue = messageContainerMap.get(supremeQueue.getQueueName());
         Message removeMessage = null;
         if (queue != null) {
@@ -164,12 +161,12 @@ public class SupremeMQMessageManager {
                     break;
                 }
             }
-            logger.debug("测试：队列内容为【{}】", queue.toString());
-            if (DeliveryMode.PERSISTENT == removeMessage.getJMSDeliveryMode()) {
-                logger.debug("是持久化消息，需要从数据库中删除");
-                removePersistentMessage(removeMessage);
+            if (removeMessage!=null) {
+                if (DeliveryMode.PERSISTENT == removeMessage.getJMSDeliveryMode()) {
+                    logger.debug("是持久化消息，需要从数据库中删除");
+                    removePersistentMessage(removeMessage);
+                }
             }
-
             queue.removeMessage(removeMessage);
         } else {
             logger.error("不存在的队列名称【{}】，移除消息{}失败！", supremeQueue.getQueueName(), message);

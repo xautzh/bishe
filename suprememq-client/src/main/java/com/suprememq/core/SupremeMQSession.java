@@ -93,7 +93,6 @@ public class SupremeMQSession implements Session {
         supremeQueueReceiver.setState(ConsumerState.WORKING.getValue());
         messageDispatcher.addConsumer(supremeQueueReceiver);
         consumerMap.put(supremeQueueReceiver.getConsumerId(), supremeQueueReceiver);
-        System.out.println("当前的consumerMap大小为" + consumerMap.size());
         supremeQueueReceiver.start();
         return supremeQueueReceiver;
     }

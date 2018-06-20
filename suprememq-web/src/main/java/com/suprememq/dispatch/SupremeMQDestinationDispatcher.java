@@ -105,13 +105,10 @@ public class SupremeMQDestinationDispatcher {
 						} else if(MessageType.CUSTOMER_MESSAGE_PULL.getValue().
 								equals(message.getJMSType())) {
 							logger.debug("消费者拉取消息【{}】", message);
-							
 							SupremeMQDestination dest = (SupremeMQDestination) message.getJMSDestination();
 							message.setJMSDestination(SupremeMQMessageManager.getSupremeMQMessageContainer(dest.getName()));
-							
 							supremeMQCustomerManager.updateConsumerState(dest.getName(),
 									message.getStringProperty(MessageProperty.CUSTOMER_ID.getKey()), true);
-						
 						// 连接初始化参数的消息
 						} else if(MessageType.CONNECTION_INIT_PARAM.getValue().
 								equals(message.getJMSType())) {

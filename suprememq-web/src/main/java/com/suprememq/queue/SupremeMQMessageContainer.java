@@ -29,8 +29,6 @@ public class SupremeMQMessageContainer extends SupremeMQDestination {
     // 已发送的消息队列
     private transient BlockingQueue<Message> consumeMessageQueue = new LinkedBlockingQueue<Message>();
 
-    private transient List<Message> topicMessageList = new ArrayList<>();
-
     private static Logger logger = LoggerFactory.getLogger(SupremeMQMessageContainer.class);
 
     public SupremeMQMessageContainer(String name, String type) {
@@ -52,35 +50,6 @@ public class SupremeMQMessageContainer extends SupremeMQDestination {
             throw new JMSException(e.getMessage());
         }
     }
-
-    public void putTopicMessage(Message message) throws JMSException {
-        message.setJMSTimestamp(new Date().getTime());
-        topicMessageList.add(message);
-    }
-
-    public void commitTopicMessage() throws JMSException {
-        try {
-            System.out.println("主题列表大小" + topicMessageList.size());
-            List<Message> newList = new ArrayList<>();
-            //根据消息的持续时间判断消息是否需要存在列表中
-            for (Message m : topicMessageList) {
-                long expiration = m.getJMSExpiration();
-                long misTime = (new Date().getTime()) - m.getJMSTimestamp();
-                if (expiration < misTime) {
-                    continue;
-                }
-                newList.add(m);
-                messageQueue.put(m);
-                logger.debug("往队列【{}】添加一条消息:{}", name, m);
-            }
-            topicMessageList = newList;
-
-        } catch (InterruptedException e) {
-            logger.error("往队列【{}】添加消息【{}】失败:{}", name, e);
-            throw new JMSException(e.getMessage());
-        }
-    }
-
     /**
      * 从队列中获取一个消息
      * 没消息则阻塞

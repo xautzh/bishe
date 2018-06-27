@@ -37,7 +37,6 @@ public class SupremeMQServerTransportFactory {
 		if (!matcher.matches()) {
 			throw new JMSException("URI格式错误:" + uri);
 		}
-
 		String transportType = matcher.group(1);
 		String ipAddress = matcher.group(2);
 		int port = Integer.parseInt(matcher.group(3));
@@ -48,20 +47,16 @@ public class SupremeMQServerTransportFactory {
 				(byte) Integer.parseInt(ipAddressArray[1]),
 				(byte) Integer.parseInt(ipAddressArray[2]),
 				(byte) Integer.parseInt(ipAddressArray[3]) };
-		
+		//通信协议 这里仅支持TCP
 		if(TransportType.TRANSPORT_TCP.getValue().equals(transportType)) {
 			try {
 				TcpSupremeMQTransportCenter tcpSupremeMQTransportCenter = new
 						TcpSupremeMQTransportCenter(InetAddress.getByAddress(ipBytes), port);
-				
 				return tcpSupremeMQTransportCenter;
-				
 			} catch (UnknownHostException e) {
 				logger.error(e.getMessage());
 				throw new JMSException(e.getMessage());
 			}
-			
-			
 		} else  {
 			return null;
 		}

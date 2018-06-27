@@ -148,7 +148,7 @@ public class SupremeMQConsumerManager {
         try {
             queue.put(message);
             // 之所以给消费者推送消息设置阻塞开关，是为了防止消费者处理不过来造成消费者端消息堆积，这里暂时不设置阻塞
-            updateConsumerState(dest.getName(), nextConsumerId, false);
+            updateConsumerState(dest.getName(), nextConsumerId, true);
             logger.debug("成功将消息【{}】推送到消费者【{}】队列！", message, nextConsumerId);
         } catch (InterruptedException e) {
             logger.error("将消息【{}】推送到消费者【{}】队列失败！", message, nextConsumerId);
@@ -163,12 +163,11 @@ public class SupremeMQConsumerManager {
         PollArray<String> pollArray = getPollArray(destination);
         String nextConsumerId = null;
         BlockingQueue<String> exitConsumer = new LinkedBlockingQueue<>();
-        while (!pollArray.isEmpty()){
+        while (true){
             try {
                 nextConsumerId = pollArray.getNext();
-                if (exitConsumer.contains(nextConsumerId)){
+                if(exitConsumer.contains(nextConsumerId))
                     continue;
-                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -178,7 +177,7 @@ public class SupremeMQConsumerManager {
             message.setJMSDestination(new SupremeMQDestination(dest.getName(), dest.getType()));
             try {
                 topic.put(message);
-                updateConsumerState(destination.getName(), nextConsumerId, false);
+                updateConsumerState(destination.getName(), nextConsumerId, true);
                 logger.debug("成功将消息【{}】推送到消费者【{}】队列！", message, nextConsumerId);
                 exitConsumer.put(nextConsumerId);
                 System.out.println("消費者數量："+exitConsumer.size());

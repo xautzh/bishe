@@ -18,23 +18,23 @@ public interface SupremeMQServerTransport {
 	 * 开启传送通道
 	 * @throws JMSException
 	 */
-	public void start() throws JMSException;
+	void start() throws JMSException;
 	
 	/**
 	 * 关闭传送通道
 	 * @throws JMSException
 	 */
-	public void close() throws JMSException;
+	void close() throws JMSException;
 	
 	/**
 	 * 获取收到的消息的队列
 	 * @return
 	 */
-	public BlockingQueue<Message> getReceiveMessageQueue();
+	BlockingQueue<Message> getReceiveMessageQueue();
 	
 	/**
 	 * 获取要发送消息的队列
 	 * @return
 	 */
-	public BlockingQueue<Message> getSendMessageQueue();
+	BlockingQueue<Message> getSendMessageQueue();
 }

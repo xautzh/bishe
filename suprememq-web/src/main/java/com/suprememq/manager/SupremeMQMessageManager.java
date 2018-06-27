@@ -1,15 +1,11 @@
 package com.suprememq.manager;
 
 import com.suprememq.constant.MessageContainerType;
-import com.suprememq.constant.MessageProperty;
 import com.suprememq.dao.MessageDao;
 import com.suprememq.message.SupremeMQDestination;
-import com.suprememq.message.bean.SupremeMQMessage;
 import com.suprememq.queue.SupremeMQMessageContainer;
-import com.suprememq.util.MessageIdGenerate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -34,18 +30,11 @@ public class SupremeMQMessageManager {
     int MAX_QUEUE_MESSAGE_CAPACITY; // 队列中所能容纳的消息最大数
     private @Value("${max_queue_num}")
     int MAX_QUEUE_NUM; // 队列数量的最大值
-
     // 消息队列
     private ConcurrentHashMap<String, SupremeMQMessageContainer> messageContainerMap =
             new ConcurrentHashMap<String, SupremeMQMessageContainer>();
     private ConcurrentHashMap<String, List<Message>> allMessageMap =
             new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, List<Message>> topicMessageMap =
-            new ConcurrentHashMap<>();
-
-    @Autowired
-    private SupremeMQConsumerManager SupremeMQConsumerManager;
-
     private Logger logger = LoggerFactory.getLogger(SupremeMQMessageManager.class);
 
     public ConcurrentHashMap<String, SupremeMQMessageContainer> getMessageContainerMap() {
@@ -128,21 +117,6 @@ public class SupremeMQMessageManager {
     }
 
     /**
-     * 主题
-     *
-     * @param name
-     * @return
-     */
-    public List<Message> getTopicMessageList(String name) {
-        List<Message> messageVoList = topicMessageMap.putIfAbsent(name,
-                new ArrayList<>());
-        if (messageVoList == null) {
-            messageVoList = topicMessageMap.get(name);
-        }
-        return messageVoList;
-    }
-
-    /**
      * 将一个消息从消息队列中移除
      *
      * @param message
@@ -161,7 +135,7 @@ public class SupremeMQMessageManager {
                     break;
                 }
             }
-            if (removeMessage!=null) {
+            if (removeMessage != null) {
                 if (DeliveryMode.PERSISTENT == removeMessage.getJMSDeliveryMode()) {
                     logger.debug("是持久化消息，需要从数据库中删除");
                     removePersistentMessage(removeMessage);
@@ -196,57 +170,8 @@ public class SupremeMQMessageManager {
         new MessageDao().removeMessage(message);
     }
 
-    /**
-     * 从生产者那里获取消息
-     *
-     * @param message
-     * @throws JMSException
-     */
-    public Message receiveProducerMessage(Message message) throws JMSException {
-//		if(!(message instanceof supremeMessage)) {
-//			logger.error("接收到的生产者Message类型非法：" + message);
-//			throw new JMSException("接收到的Message类型非法：" + message);
-//		}
-
-        // 获取客户端给消息设置的MessageId
-        String clientMessageId = message.getJMSMessageID();
-
-        if (!message.getBooleanProperty(MessageProperty.DISABLE_MESSAGE_ID.getKey())) {
-            message.setJMSMessageID(MessageIdGenerate.getNewMessageId());
-        } else {
-            message.setJMSMessageID(null);
-        }
-
-        // 添加消息
-        addMessage(message);
-
-        Message acknowledgeMessage = new SupremeMQMessage();
-        acknowledgeMessage.setJMSMessageID(clientMessageId);
-
-        return acknowledgeMessage;
-    }
-
-    /**
-     * 从消费者那里接受消息应答
-     *
-     * @param message
-     * @throws JMSException
-     */
-    public void receiveConsumerAcknowledgeMessage(Message message) throws JMSException {
-        removeMessage(message);
-    }
-
     public ConcurrentHashMap<String, List<Message>> getAllMessageMap() {
         return allMessageMap;
     }
 
-    public ConcurrentHashMap<String, List<Message>> getTopicMessageMap() {
-        return topicMessageMap;
-    }
-    public void flushAllQueu() throws JMSException {
-        List<Message> messageList = new MessageDao().queryMessage();
-        for (Message m:messageList){
-            addMessage(m);
-        }
-    }
 }

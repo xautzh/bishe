@@ -55,80 +55,77 @@ public class SupremeMQDestinationDispatcher {
 	public void start() {
 		logger.info("SupremeMQDestinationDispatcher准备开始工作... ...");
 		
-		dispatcherThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Message message = null;
-				while(!Thread.currentThread().isInterrupted()) {
-					try {
-						message = receiveMessageQueue.take();
-					} catch (InterruptedException e) {
-						logger.info("supremeMQQueueDispatcher被中断，即将退出.");
-						break ;
-					}
-					
-					logger.debug("开始处理消息【{}】", message);
-					
-					try {
-						// 生产者消息
-						if(MessageType.PRODUCER_MESSAGE.getValue().
-								equals(message.getJMSType())) {
-							logger.debug("生产者消息【{}】", message);
-							
-							SupremeMQMessageManager.addMessage(message);
-							// 创建应答消息
-							SupremeMQMessage answerMessage = new SupremeMQMessage();
-							answerMessage.setJMSType(MessageType.PRODUCER_ACKNOWLEDGE_MESSAGE.getValue());
-							answerMessage.setJMSMessageID(message.getJMSMessageID());
-							try {
-								sendMessageQueue.put(answerMessage);
-							} catch (InterruptedException e) {
-								logger.info("生产者应答消息发送被中断.");
-							}
-						
-						// 消费者应答消息
-						} else if(MessageType.CUSTOMER_ACKNOWLEDGE_MESSAGE.getValue().
-								equals(message.getJMSType())) {
-							logger.debug("消费者应答消息【{}】", message);
-							SupremeMQMessageManager.removeMessage(message);
-						
-						// 消费者注册消息
-						} else if(MessageType.CUSTOMER_REGISTER_MESSAGE.getValue().
-								equals(message.getJMSType())) {
-							logger.debug("消费者注册消息【{}】", message);
-							
-							SupremeMQDestination dest = (SupremeMQDestination) message.getJMSDestination();
-							message.setJMSDestination(SupremeMQMessageManager.getSupremeMQMessageContainer(dest.getName()));
-							supremeMQCustomerManager.addCustomer(message, sendMessageQueue);
-						
-						// 消费者拉取消息
-						} else if(MessageType.CUSTOMER_MESSAGE_PULL.getValue().
-								equals(message.getJMSType())) {
-							logger.debug("消费者拉取消息【{}】", message);
-							SupremeMQDestination dest = (SupremeMQDestination) message.getJMSDestination();
-							message.setJMSDestination(SupremeMQMessageManager.getSupremeMQMessageContainer(dest.getName()));
-							supremeMQCustomerManager.updateConsumerState(dest.getName(),
-									message.getStringProperty(MessageProperty.CUSTOMER_ID.getKey()), true);
-						// 连接初始化参数的消息
-						} else if(MessageType.CONNECTION_INIT_PARAM.getValue().
-								equals(message.getJMSType())) {
-							logger.debug("连接初始化参数的消息【{}】", message);
-							SupremeMQMapMessage mapMessage = (SupremeMQMapMessage) message;
-							if(mapMessage.propertyExists(ConnectionProperty.CLIENT_MESSAGE_BATCH_ACK_QUANTITY.getKey())) {
-								supremeMQCustomerManager.setClientMessageBatchSendAmount(mapMessage.
-										getInt(ConnectionProperty.CLIENT_MESSAGE_BATCH_ACK_QUANTITY.getKey()));
-							}
-							
-						} else {
-							logger.error("未知消息类型，无法处理【{}】", message);
-						}
-						
-					} catch (JMSException e) {
-						logger.error("supremeMQQueueDispatcher消息处理失败:【{}】", message, e);
-					}
-				}
-			}
-		});
+		dispatcherThread = new Thread(() -> {
+            Message message = null;
+            while(!Thread.currentThread().isInterrupted()) {
+                try {
+                    message = receiveMessageQueue.take();
+                } catch (InterruptedException e) {
+                    logger.info("supremeMQQueueDispatcher被中断，即将退出.");
+                    break ;
+                }
+
+                logger.debug("开始处理消息【{}】", message);
+
+                try {
+                    // 生产者消息
+                    if(MessageType.PRODUCER_MESSAGE.getValue().
+                            equals(message.getJMSType())) {
+                        logger.debug("生产者消息【{}】", message);
+
+                        SupremeMQMessageManager.addMessage(message);
+                        // 创建应答消息
+                        SupremeMQMessage answerMessage = new SupremeMQMessage();
+                        answerMessage.setJMSType(MessageType.PRODUCER_ACKNOWLEDGE_MESSAGE.getValue());
+                        answerMessage.setJMSMessageID(message.getJMSMessageID());
+                        try {
+                            sendMessageQueue.put(answerMessage);
+                        } catch (InterruptedException e) {
+                            logger.info("生产者应答消息发送被中断.");
+                        }
+
+                    // 消费者应答消息
+                    } else if(MessageType.CUSTOMER_ACKNOWLEDGE_MESSAGE.getValue().
+                            equals(message.getJMSType())) {
+                        logger.debug("消费者应答消息【{}】", message);
+                        SupremeMQMessageManager.removeMessage(message);
+
+                    // 消费者注册消息
+                    } else if(MessageType.CUSTOMER_REGISTER_MESSAGE.getValue().
+                            equals(message.getJMSType())) {
+                        logger.debug("消费者注册消息【{}】", message);
+
+                        SupremeMQDestination dest = (SupremeMQDestination) message.getJMSDestination();
+                        message.setJMSDestination(SupremeMQMessageManager.getSupremeMQMessageContainer(dest.getName()));
+                        supremeMQCustomerManager.addCustomer(message, sendMessageQueue);
+
+                    // 消费者拉取消息
+                    } else if(MessageType.CUSTOMER_MESSAGE_PULL.getValue().
+                            equals(message.getJMSType())) {
+                        logger.debug("消费者拉取消息【{}】", message);
+                        SupremeMQDestination dest = (SupremeMQDestination) message.getJMSDestination();
+                        message.setJMSDestination(SupremeMQMessageManager.getSupremeMQMessageContainer(dest.getName()));
+                        supremeMQCustomerManager.updateConsumerState(dest.getName(),
+                                message.getStringProperty(MessageProperty.CUSTOMER_ID.getKey()), true);
+                    // 连接初始化参数的消息
+                    } else if(MessageType.CONNECTION_INIT_PARAM.getValue().
+                            equals(message.getJMSType())) {
+                        logger.debug("连接初始化参数的消息【{}】", message);
+                        SupremeMQMapMessage mapMessage = (SupremeMQMapMessage) message;
+                        if(mapMessage.propertyExists(ConnectionProperty.CLIENT_MESSAGE_BATCH_ACK_QUANTITY.getKey())) {
+                            supremeMQCustomerManager.setClientMessageBatchSendAmount(mapMessage.
+                                    getInt(ConnectionProperty.CLIENT_MESSAGE_BATCH_ACK_QUANTITY.getKey()));
+                        }
+
+                    } else {
+                        logger.error("未知消息类型，无法处理【{}】", message);
+                    }
+
+                } catch (JMSException e) {
+                    logger.error("supremeMQQueueDispatcher消息处理失败:【{}】", message, e);
+                }
+            }
+        });
 		
 		dispatcherThread.start();
 		logger.info("SupremeMQDestinationDispatcher已经开始工作");

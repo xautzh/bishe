@@ -19,12 +19,9 @@ public class TopicTest {
             MessageProducer producer = session.createProducer(topic);
             System.out.println(producer.getDestination() instanceof Topic);
             TextMessage textMessage = session.createTextMessage();
-            textMessage.setText("hello this is topic");
-            producer.send(textMessage);
-            while (true) {
-                Scanner scanner = new Scanner(System.in);
-                String ling = scanner.nextLine();
-            }
+                String s = "hello this is topic";
+                textMessage.setText(s);
+                producer.send(textMessage);
         } catch (JMSException e) {
             e.printStackTrace();
         }
